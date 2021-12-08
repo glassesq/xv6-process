@@ -95,3 +95,60 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// syscalls of semaphore by lsr
+uint64
+sys_semalloc(void)
+{
+  int nsem;
+
+  if (argint(0, &nsem) < 0) 
+    return -1;
+
+  return semalloc(nsem);
+}
+
+uint64
+sys_semfree(void)
+{
+  int semid;
+
+  if (argint(0, &semid) < 0)
+    return -1;
+
+  semfree(semid);
+
+  return 0;
+}
+
+uint64 
+sys_semwait(void)
+{
+  int sem;
+  int count;
+
+  if (argint(0, &sem) < 0)
+    return -1;
+  if (argint(1, &count) < 0)
+    return -1;
+
+  semwait(sem, count);
+
+  return 0;
+}
+
+uint64
+sys_semsignal(void)
+{
+  int sem;
+  int count;
+
+  if (argint(0, &sem) < 0)
+    return -1;
+  if (argint(1, &count) < 0)
+    return -1;
+
+  semsignal(sem, count);
+
+  return 0;
+}

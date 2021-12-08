@@ -6,11 +6,13 @@
 #include "proc.h"
 #include "defs.h"
 
+struct semaphore sems[NSEMS];
+// allocate a semaphore
 int 
 semalloc(int nsem) 
 {
   int i;
-  for (int i = 0; i < NSEMS; ++i)
+  for (i = 0; i < NSEMS; ++i)
   {
     acquire(&sems[i].lock);
     if (sems[i].allocated == 0)
@@ -24,7 +26,8 @@ semalloc(int nsem)
   return -1;
 }
 
-int 
+// free sems[id]
+void 
 semfree(int id)
 {
   acquire(&sems[id].lock);
@@ -32,7 +35,8 @@ semfree(int id)
   release(&sems[id].lock);
 }
 
-int 
+// P operation
+void 
 semwait(int id, int nsem)
 {
   acquire(&sems[id].lock);
@@ -42,11 +46,12 @@ semwait(int id, int nsem)
   release(&sems[id].lock);
 }
 
-int 
+// V operation
+void 
 semsignal(int id, int nsem)
 {
   acquire(&sems[id].lock);
   sems[id].count += nsem;
-  wakeup(&sems[id]);
+  wakeup1p(&sems[id]);
   release(&sems[id].lock);
 }

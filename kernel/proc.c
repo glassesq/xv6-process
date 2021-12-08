@@ -611,6 +611,26 @@ wakeup(void *chan)
   }
 }
 
+// by lsr
+// Wake up one process sleeping on semaphore
+void
+wakeup1p(void *chan)
+{
+  struct proc *p;
+  
+  for(p = proc; p < &proc[NPROC]; p++) {
+    if(p != myproc()){
+      acquire(&p->lock);
+      if(p->state == SLEEPING && p->chan == chan) {
+        p->state = RUNNABLE;
+        release(&p->lock);
+        break;
+      }
+      release(&p->lock);
+    }
+  }
+}
+
 // Kill the process with the given pid.
 // The victim won't exit until it tries to return
 // to user space (see usertrap() in trap.c).

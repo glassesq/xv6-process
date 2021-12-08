@@ -20,3 +20,7 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+#define SYS_semalloc 22
+#define SYS_semfree 23
+#define SYS_semwait 24
+#define SYS_semsignal 25

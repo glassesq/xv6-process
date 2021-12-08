@@ -1,6 +1,6 @@
-// semaphore
+// semaphore by lsr
 struct semaphore {
-    struct spinlock; 
+    struct spinlock lock; 
     int count;
     int allocated; 
 };

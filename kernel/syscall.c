@@ -104,6 +104,10 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
+extern uint64 sys_semalloc(void);
+extern uint64 sys_semfree(void);
+extern uint64 sys_semwait(void);
+extern uint64 sys_semsignal(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -127,6 +131,10 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_semalloc] sys_semalloc,
+[SYS_semfree] sys_semfree,
+[SYS_semwait] sys_semwait,
+[SYS_semsignal] sys_semsignal,
 };
 
 void
