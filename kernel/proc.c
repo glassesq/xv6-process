@@ -119,6 +119,8 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  
+  p->cretime = ticks;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -163,6 +165,7 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  p->cretime = 0;
   p->state = UNUSED;
 }
 
@@ -244,6 +247,9 @@ userinit(void)
 
   p->state = RUNNABLE;
 
+  // determine its create time
+  p->cretime = ticks;
+  
   release(&p->lock);
 }
 
@@ -439,15 +445,47 @@ scheduler(void)
 {
   struct proc *p;
   struct cpu *c = mycpu();
-  
+  #ifdef FCFS
+  struct proc *nextproc = 0;
+  uint minPtime = (1ll << 32) - 1;
+  #endif
+
   c->proc = 0;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
-      if(p->state == RUNNABLE) {
+      if(p->state != RUNNABLE){
+        release(&p->lock);
+        continue;
+      }
+      #ifdef DEFAULT
+      // do nothing
+      #endif
+      #ifdef FCFS
+      // 忽略init和shell进程
+      if(p->pid > 2){
+        if(p != 0){
+          if(p->cretime < minPtime){
+            minPtime = p->cretime;
+            nextproc = p;
+            // 若还没有遍历完一遍
+            // TODO:低效，可以维护一个新的队列
+            if(p != &proc[NPROC - 1]){
+              release(&p->lock);
+              continue;
+            }
+            else{
+              release(&p->lock);
+              p = nextproc;
+              acquire(&p->lock);
+            }
+          }
+        }
+      }
+      #endif
+      if(p != 0) {
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
@@ -458,6 +496,7 @@ scheduler(void)
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
+        printf("%d\n", p->pid); // for debug
       }
       release(&p->lock);
     }
@@ -477,13 +516,13 @@ sched(void)
   int intena;
   struct proc *p = myproc();
 
-  if(!holding(&p->lock))
+  if(!holding(&p->lock))  // 是否申请了自己的锁
     panic("sched p->lock");
-  if(mycpu()->noff != 1)
+  if(mycpu()->noff != 1)  // 是否放弃了其他锁
     panic("sched locks");
-  if(p->state == RUNNING)
+  if(p->state == RUNNING) // 是否更改了状态
     panic("sched running");
-  if(intr_get())
+  if(intr_get())          // 是否关闭了中断
     panic("sched interruptible");
 
   intena = mycpu()->intena;
