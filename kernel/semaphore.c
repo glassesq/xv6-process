@@ -19,6 +19,7 @@ semalloc(int nsem)
     {
       sems[i].allocated = 1;
       sems[i].count = nsem;
+      release(&sems[i].lock);
       return i;    
     }
     release(&sems[i].lock);

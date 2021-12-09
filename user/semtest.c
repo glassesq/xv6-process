@@ -18,14 +18,11 @@ int counter_init(char *filename, int value)
 {
 	int fd;
 
-    printf("ok1\n");
 	if ((fd = open(filename, O_CREATE | O_RDWR)) < 0) {
-        printf("ok1\n");
 		fprintf(1, "counter_init: error initializing file: %s\n", filename);
 		exit(1);
 	}
 
-    printf("ok2\n");
 	fprintf(fd, "%d\n", value);
 	close(fd);
 
