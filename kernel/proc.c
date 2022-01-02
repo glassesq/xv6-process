@@ -127,7 +127,7 @@ found:
   p->runtime_once = 0;
   p->sleeptime = 0;
   p->cretime = ticks;
-  p->slot = SLOT
+  p->slot = SLOT;
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -258,7 +258,7 @@ userinit(void)
   
   // by psa
   // set slot for userinit
-  p->slot = SLOT
+  p->slot = SLOT;
 
   release(&p->lock);
 }
@@ -751,10 +751,10 @@ void UpdateProcInfo(){
         p->runtime++;
         p->runtime_once++;
         break;
-      case: RUNNABLE:
-        P->readytime++;
+      case RUNNABLE:
+        p->readytime++;
         break;
-      case: SLEEPING:
+      case SLEEPING:
         p->sleeptime++;
         break;
     }
@@ -767,9 +767,9 @@ void UpdateProcInfo(){
 void UpdatePriorty(){
   struct proc* p = myproc();
   if(p->slot == 8){
-    p->priorty = 1;
+    p->priority = 1;
   }
   else{
-    p->priorty = SLOT/(SLOT-p->slot);
+    p->priority = SLOT/(SLOT-p->slot);
   }
 }
