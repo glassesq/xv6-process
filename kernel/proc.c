@@ -120,7 +120,7 @@ found:
   p->pid = allocpid();
   p->state = USED;
   #ifdef PRIORITY
-    p->priorty = 5;
+    p->priority = 10;
   #endif
   p->readytime = 0;
   p->runtime = 0;
@@ -501,7 +501,7 @@ scheduler(void)
         priorProc = p;
         //search for the proc with maxPriorty
         for(p1 = proc; p1<&proc[NPROC];p1++){
-          if((p1->state == RUNNABLE)&&(priorProc->priorty<p1->priorty))
+          if((p1->state == RUNNABLE)&&(priorProc->priority<p1->priority))
             priorProc = p1;
         }
         p = priorProc
@@ -757,6 +757,8 @@ void UpdateProcInfo(){
       case SLEEPING:
         p->sleeptime++;
         break;
+      default:
+        ;
     }
   }
 }
