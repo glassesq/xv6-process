@@ -119,9 +119,15 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
-  
+  #ifdef PRIORITY
+    p->priorty = 5;
+  #endif
+  p->readytime = 0;
+  p->runtime = 0;
+  p->runtime_once = 0;
+  p->sleeptime = 0;
   p->cretime = ticks;
-
+  p->slot = SLOT
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -250,6 +256,10 @@ userinit(void)
   // determine its create time
   p->cretime = ticks;
   
+  // by psa
+  // set slot for userinit
+  p->slot = SLOT
+
   release(&p->lock);
 }
 
@@ -485,6 +495,18 @@ scheduler(void)
         }
       }
       #endif
+      #ifdef PRIORITY
+        struct proc* priorProc = 0;
+        struct proc* p1 = 0;
+        priorProc = p;
+        //search for the proc with maxPriorty
+        for(p1 = proc; p1<&proc[NPROC];p1++){
+          if((p1->state == RUNNABLE)&&(priorProc->priorty<p1->priorty))
+            priorProc = p1;
+        }
+        p = priorProc
+        
+      #endif
       if(p != 0) {
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
@@ -526,6 +548,9 @@ sched(void)
     panic("sched interruptible");
 
   intena = mycpu()->intena;
+  #ifdef PRIORITY
+  UpdatsePriorty();
+  #endif
   swtch(&p->context, &mycpu()->context);
   mycpu()->intena = intena;
 }
@@ -711,5 +736,40 @@ procdump(void)
       state = "???";
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
+  }
+}
+
+//by psa
+//run this funcion in every timer interrupt
+//what if I donnot acquire the lock?
+void UpdateProcInfo(){
+  struct proc *p;
+  for(p = proc;p < &proc[NPROC];p++){
+    
+    switch(p->state){
+      case RUNNING:
+        p->runtime++;
+        p->runtime_once++;
+        break;
+      case: RUNNABLE:
+        P->readytime++;
+        break;
+      case: SLEEPING:
+        p->sleeptime++;
+        break;
+    }
+  }
+}
+
+//by psa
+//run this function in every sched
+//when running this funtion, still get the lock of myproc()
+void UpdatePriorty(){
+  struct proc* p = myproc();
+  if(p->slot == 8){
+    p->priorty = 1;
+  }
+  else{
+    p->priorty = SLOT/(SLOT-p->slot);
   }
 }

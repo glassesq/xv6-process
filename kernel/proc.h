@@ -1,3 +1,4 @@
+#define SLOT 8
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
@@ -106,5 +107,16 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
+  double priority;             // Process priorty
+  int sleeptime;               // Process SLEEPING time
+  int readytime;               // Process RUNNABLE time
+  int runtime;                 // Process RUNNING time
+  int runtime_once;            // Process RUNNING time in an interval
+  int tickets;                 // Process tickets used in LOTTERY scheduling 
   uint64 cretime;              // 进程被创建的时间
+
+  int slot;                    //length of time slice(after number[slot] ticks, call yield())
 };
+
+void UpdatePriorty();           // for Priorty Scheduling
+void UpdateProcInfo();          // update sleepingtime, runningtime and readytime
