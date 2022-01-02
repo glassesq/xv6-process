@@ -1,4 +1,5 @@
 #define SLOT 8
+#define DEFAULT_TICKETS 1
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
@@ -115,7 +116,7 @@ struct proc {
   int tickets;                 // Process tickets used in LOTTERY scheduling 
   uint64 cretime;              // 进程被创建的时间
 
-  int slot;                    //length of time slice(after number[slot] ticks, call yield())
+  int slot;                    // length of time slice(after number[slot] ticks, call yield())
 };
 
 void UpdatePriorty();           // for Priorty Scheduling
