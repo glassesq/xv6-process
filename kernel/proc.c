@@ -130,7 +130,8 @@ found:
   p->sleeptime = 0;
   p->cretime = ticks;
   p->slot = SLOT;
-  p->tickets = DEFAULT_TICKETS;
+  p->tickets = DEFAULT_TICKETS; // ???
+  printf("pid allocated %d\n", p->pid);
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -307,7 +308,7 @@ fork(void)
     return -1;
   }
   np->sz = p->sz;
-  //??? np->tickets = DEFAULT_TICKETS; 
+  // np->tickets = DEFAULT_TICKETS; // ??? here?
 
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
@@ -514,12 +515,15 @@ scheduler(void)
       #ifdef LOTTERY
       // 现在的票数是写死的，可以预见，当所有票数相等的时候，这个算法是期望\Theta{n}的
       // 如果票数动态变化，可以模拟其他的算法。例如票数随等待时间增加可以模拟FCFS
-      int rand_num = rand(total_tickets);
-      if(rand_num > p->tickets){ // did't happen
-        release(&p->lock);
-        continue;
+      // 忽略进程1和2
+      if(p->pid > 2){
+        int rand_num = rand(total_tickets);
+        if(rand_num > p->tickets){ // did't happen
+          release(&p->lock);
+          continue;
+        }
+        // p->tickets = 0; // ??? 一种变化的方式，选中的清零。清零之后本进程运行不了
       }
-      p->tickets = 0; // 一种变化的方式，选中的清零
       #endif
       if(p != 0) {
         // Switch to chosen process.  It is the process's job
@@ -566,7 +570,9 @@ sched(void)
   UpdatePriorty();
   #endif
   #ifdef LOTTERY
+//  printf("I'm in sched with Lottry\n"); // for debugging
   total_tickets = TotalTickets();
+//  printf("The current total tickets are %d\n", total_tickets);  // for debugging
   #endif
   swtch(&p->context, &mycpu()->context);
   mycpu()->intena = intena;
@@ -801,8 +807,10 @@ int TotalTickets(){
   for(p = proc; p < &proc[NPROC]; p++){
     if(p != 0 && p->state == RUNNABLE){
       total += p->tickets;
-      if(p->tickets < 100)
-        p->tickets++; // 一种变化的方式，随时间增加
+      // if(p->tickets < 100){
+      //   p->tickets++; // 一种变化的方式，随时间增加
+      //   printf("after plus plus id = %d\n", p->pid);
+      // }
     }
   }
   return total;
