@@ -108,7 +108,7 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
-  double priority;             // Process priorty
+  int priority;                // Process priorty
   int sleeptime;               // Process SLEEPING time
   int readytime;               // Process RUNNABLE time
   int runtime;                 // Process RUNNING time
@@ -119,5 +119,5 @@ struct proc {
   int slot;                    // length of time slice(after number[slot] ticks, call yield())
 };
 
-void UpdatePriorty();           // for Priorty Scheduling
+void UpdatePriority();           // for Priorty Scheduling
 void UpdateProcInfo();          // update sleepingtime, runningtime and readytime

@@ -140,6 +140,8 @@ UPROGS=\
 	$U/_zombie\
 	$U/_sleep\
 	$U/_semtest\
+	$U/_test1\
+	$U/_test2\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

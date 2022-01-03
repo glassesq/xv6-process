@@ -121,14 +121,12 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
-  #ifdef PRIORITY
-    p->priority = 10;
-  #endif
   p->readytime = 0;
   p->runtime = 0;
   p->runtime_once = 0;
   p->sleeptime = 0;
   p->cretime = ticks;
+  p->priority = 10;
   p->slot = SLOT;
   p->tickets = DEFAULT_TICKETS; // ???
   printf("pid allocated %d\n", p->pid);
@@ -391,6 +389,7 @@ exit(int status)
 
   p->xstate = status;
   p->state = ZOMBIE;
+  p->priority = 0;
 
   release(&wait_lock);
 
@@ -477,6 +476,7 @@ scheduler(void)
       }
       #ifdef DEFAULT
       // do nothing
+      //printf("scheduler is default");
       #endif
       #ifdef FCFS
       // 忽略init和shell进程
@@ -503,19 +503,29 @@ scheduler(void)
       #ifdef PRIORITY
         struct proc* priorProc = 0;
         struct proc* p1 = 0;
-        priorProc = p;
-        //search for the proc with maxPriorty
-        for(p1 = proc; p1<&proc[NPROC];p1++){
-          if((p1->state == RUNNABLE)&&(priorProc->priority<p1->priority))
-            priorProc = p1;
+        if(p != 0){
+          priorProc = p;
+          //search for the proc with maxPriority
+          for(p1 = proc; p1<&proc[NPROC];p1++){
+            if(p1!=p){
+              acquire(&p1->lock);
+              if((p1->state == RUNNABLE)&&(priorProc->priority<p1->priority)){
+                  release(&priorProc->lock);
+                  priorProc = p1;
+                  continue;
+              }
+              release(&p1->lock);
+            }
+          }
+          p = priorProc;
+          //printf("\nprocess %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
         }
-        p = priorProc;
-        
       #endif
       #ifdef LOTTERY
       // 现在的票数是写死的，可以预见，当所有票数相等的时候，这个算法是期望\Theta{n}的
       // 如果票数动态变化，可以模拟其他的算法。例如票数随等待时间增加可以模拟FCFS
       // 忽略进程1和2
+      printf("scheduler is lottery");
       if(p->pid > 2){
         int rand_num = rand(total_tickets);
         if(rand_num > p->tickets){ // did't happen
@@ -567,7 +577,7 @@ sched(void)
 
   intena = mycpu()->intena;
   #ifdef PRIORITY
-  UpdatePriorty();
+  UpdatePriority();
   #endif
   #ifdef LOTTERY
 //  printf("I'm in sched with Lottry\n"); // for debugging
@@ -757,8 +767,13 @@ procdump(void)
       state = states[p->state];
     else
       state = "???";
+    
     printf("%d %s %s", p->pid, state, p->name);
+    #ifdef PRIORITY
+    printf(" %d",p->priority);
+    #endif
     printf("\n");
+
   }
 }
 
@@ -788,8 +803,9 @@ void UpdateProcInfo(){
 
 //by psa
 //run this function in every sched
+//must only hold p->lock
 //when running this funtion, still get the lock of myproc()
-void UpdatePriorty(){
+void UpdatePriority(){
   struct proc* p = myproc();
   if(p->slot == 8){
     p->priority = 1;
