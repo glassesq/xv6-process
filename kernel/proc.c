@@ -525,14 +525,14 @@ scheduler(void)
       // 现在的票数是写死的，可以预见，当所有票数相等的时候，这个算法是期望\Theta{n}的
       // 如果票数动态变化，可以模拟其他的算法。例如票数随等待时间增加可以模拟FCFS
       // 忽略进程1和2
-      printf("scheduler is lottery");
+      // printf("scheduler is lottery");
       if(p->pid > 2){
         int rand_num = rand(total_tickets);
         if(rand_num > p->tickets){ // did't happen
           release(&p->lock);
           continue;
         }
-        // p->tickets = 0; // ??? 一种变化的方式，选中的清零。清零之后本进程运行不了
+        p->tickets = 0; // ??? 一种变化的方式，选中的清零。清零之后本进程运行不了
       }
       #endif
       if(p != 0) {
@@ -823,21 +823,28 @@ int TotalTickets(){
   for(p = proc; p < &proc[NPROC]; p++){
     if(p != 0 && p->state == RUNNABLE){
       total += p->tickets;
-      // if(p->tickets < 100){
-      //   p->tickets++; // 一种变化的方式，随时间增加
-      //   printf("after plus plus id = %d\n", p->pid);
-      // }
+      if(p->tickets < 100){
+        p->tickets++; // 一种变化的方式，随时间增加
+        // printf("after plus plus id = %d\n", p->pid);  // debugging
+      }
     }
   }
   return total;
 }
 
 // by hjx
-// 线性同余法随机数发生器
-int rand(int max){
-  if(max <= 0) 
-    return 1;
-  static long long seed = 2;  // 种子现在写死了
-  seed = (25214903917ll * seed) & ((1ll << 48) - 1);
-  return seed % max;
+// xorshift随机数发生器
+int rand(int max) {          //period 2^96-1
+static unsigned long long x=123456789, y=362436069, z=521288629;
+unsigned long long t;
+    x ^= x << 16;
+    x ^= x >> 5;
+    x ^= x << 1;
+
+   t = x;
+   x = y;
+   y = z;
+   z = t ^ x ^ y;
+
+  return (int)(z % max);
 }
