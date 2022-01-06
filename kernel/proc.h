@@ -1,3 +1,4 @@
+#define NSHM_IN_PROC 8
 #define SLOT 8
 #define DEFAULT_TICKETS 1
 // Saved registers for kernel context switches.
@@ -117,6 +118,8 @@ struct proc {
   uint64 cretime;              // 进程被创建的时间
 
   int slot;                    // length of time slice(after number[slot] ticks, call yield())
+
+  int privateshmlist[NSHM_IN_PROC]; // Process shared memory
 };
 
 void UpdatePriority();           // for Priorty Scheduling

@@ -112,6 +112,10 @@ int             rand(int max);
 // swtch.S
 void            swtch(struct context*, struct context*);
 
+// shm.c
+void            shminit(void); // shared memory initial
+int             shmget(int); // get shared memory
+
 // semaphore.c
 int             semalloc(int);
 void            semfree(int);

@@ -129,6 +129,8 @@ found:
   p->priority = 10;
   p->slot = SLOT;
   p->tickets = DEFAULT_TICKETS; // ???
+  int i = 0;
+  for(i = 0; i < NSHM_IN_PROC; i++) p->privateshmlist[i] = -1;
   printf("pid allocated %d\n", p->pid);
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){

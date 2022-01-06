@@ -152,3 +152,13 @@ sys_semsignal(void)
 
   return 0;
 }
+
+uint64
+sys_shmget(void) 
+{
+  int token;
+  if (argint(0, &token) < 0) 
+    return -1;
+  int ret = shmget(token);
+  return ret;
+}
