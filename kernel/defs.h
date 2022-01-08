@@ -115,6 +115,8 @@ void            swtch(struct context*, struct context*);
 // shm.c
 void            shminit(void); // shared memory initial
 int             shmget(int); // get shared memory
+int             shmdel(int); // release shared memory
+void            shmdelall(struct proc *); // release all shared memory
 
 // semaphore.c
 int             semalloc(int);

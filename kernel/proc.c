@@ -162,6 +162,9 @@ found:
 static void
 freeproc(struct proc *p)
 {
+  shmdelall(p);
+  /* release all shared memory it preserved */
+
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;

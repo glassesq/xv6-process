@@ -25,6 +25,6 @@
 #define SYS_semwait 24
 #define SYS_semsignal 25
 #define SYS_shmget 26
-// TODO: #define SYS_shmdel 27
+#define SYS_shmdel 27
 // TODO: #define SYS_shmwrite 28
 // TODO: #define SYS_shmread 29

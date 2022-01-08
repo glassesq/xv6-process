@@ -28,7 +28,8 @@ void semfree(int);
 void semwait(int, int);
 void semsignal(int, int);
 int shmget(int);
-// TODO: shmdel, shmread, shmwrite
+int shmdel(int);
+// TODO: shmread, shmwrite
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);

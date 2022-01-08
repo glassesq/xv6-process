@@ -41,3 +41,4 @@ entry("semfree");
 entry("semwait");
 entry("semsignal");
 entry("shmget");
+entry("shmdel");

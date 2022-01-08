@@ -12,7 +12,9 @@ int main(int argc, char **argv)
 {
 	printf("shmtest: say hi\n");
 	int ret = shmget(1);
-	printf("user_shmget: return %d\n", ret);
+	printf("test_user_shmget: return %d\n", ret);
+	ret = shmdel(1);
+	printf("test_user_shmdel: return %d\n", ret);
 	// Exit
 	exit(0);
 }

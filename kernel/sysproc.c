@@ -153,6 +153,7 @@ sys_semsignal(void)
   return 0;
 }
 
+// get a new shared memory
 uint64
 sys_shmget(void) 
 {
@@ -160,5 +161,16 @@ sys_shmget(void)
   if (argint(0, &token) < 0) 
     return -1;
   int ret = shmget(token);
+  return ret;
+}
+
+// delete an old shared memory
+uint64
+sys_shmdel(void) 
+{
+  int token;
+  if (argint(0, &token) < 0)
+    return -1;
+  int ret = shmdel(token);
   return ret;
 }
