@@ -536,11 +536,7 @@ scheduler(void)
       // 现在的票数是写死的，可以预见，当所有票数相等的时候，这个算法是期望\Theta{n}的
       // 如果票数动态变化，可以模拟其他的算法。例如票数随等待时间增加可以模拟FCFS
       // 忽略进程1和2
-<<<<<<< Updated upstream
       // printf("scheduler is lottery");
-=======
-      //printf("scheduler is lottery");
->>>>>>> Stashed changes
       if(p->pid > 2){
         int rand_num = rand(total_tickets);
         if(rand_num > p->tickets){ // did't happen
