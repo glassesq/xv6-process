@@ -550,6 +550,7 @@ scheduler(void)
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
+        p->slot = SLOT;
         p->state = RUNNING;
         c->proc = p;
         swtch(&c->context, &p->context);
@@ -651,6 +652,9 @@ sleep(void *chan, struct spinlock *lk)
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
+  if(p->slot == 8){
+    p->slot--;
+  }
 
   sched();
 
