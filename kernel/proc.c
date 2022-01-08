@@ -123,7 +123,6 @@ found:
   p->state = USED;
   p->readytime = 0;
   p->runtime = 0;
-  p->runtime_once = 0;
   p->sleeptime = 0;
   p->cretime = ticks;
   p->priority = 10;
@@ -170,6 +169,8 @@ freeproc(struct proc *p)
   p->trapframe = 0;
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
+  uint64 existtime = p->deadtime - p->cretime;
+  printf("pid: %d, CreateTime: %d, FinishTime: %d, RunTime: %d, ReadyTime: %d, SleepTime: %d, ExistTime: %d\n",p->pid, p->cretime, p->deadtime, p->runtime, p->readytime, p->sleeptime, existtime);
   p->pagetable = 0;
   p->sz = 0;
   p->pid = 0;
@@ -178,6 +179,10 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  p->priority=-1;
+  p->sleeptime = 0;
+  p->readytime = 0;
+  p->runtime = 0;
   p->cretime = 0;
   p->state = UNUSED;
 }
@@ -394,6 +399,7 @@ exit(int status)
 
   p->xstate = status;
   p->state = ZOMBIE;
+  p->deadtime = ticks;
   p->priority = 0;
 
   release(&wait_lock);
@@ -530,7 +536,11 @@ scheduler(void)
       // 现在的票数是写死的，可以预见，当所有票数相等的时候，这个算法是期望\Theta{n}的
       // 如果票数动态变化，可以模拟其他的算法。例如票数随等待时间增加可以模拟FCFS
       // 忽略进程1和2
+<<<<<<< Updated upstream
       // printf("scheduler is lottery");
+=======
+      //printf("scheduler is lottery");
+>>>>>>> Stashed changes
       if(p->pid > 2){
         int rand_num = rand(total_tickets);
         if(rand_num > p->tickets){ // did't happen
@@ -792,7 +802,6 @@ void UpdateProcInfo(){
     switch(p->state){
       case RUNNING:
         p->runtime++;
-        p->runtime_once++;
         break;
       case RUNNABLE:
         p->readytime++;
