@@ -6,6 +6,9 @@
 #include "proc.h"
 #include "defs.h"
 
+#define SHM_READ 0
+#define SHM_WRITE 1
+
 struct sharedmemory shmlist[NSHM];
 struct spinlock shmlock;
 
@@ -176,4 +179,43 @@ void shmdelall(struct proc* p) {
   }
 //  printf("test_shmdelall: delete %d shms, say bye\n", count);
   release(&shmlock);
+}
+
+int shmcheck(int token, int type) {
+  struct shm_result result;
+  shmfindinproc(token, &result);
+  if( result.found < 0 ) return 0;
+  // TODO: check read & write permission
+  return 1;
+}
+
+int shmread(int token, uint64 addr, uint64 buffer, int length) {
+  acquire(&shmlock);
+//  printf("test_shmread: say hi\n");
+  if( !shmcheck(token, SHM_READ) ) {
+    release(&shmlock);
+    return -1;
+  }
+  struct shm_result result;
+  shmfindinglobal(token, &result);
+  void* src = addr + shmlist[result.found].addr;
+  struct proc* p = myproc();
+  copyout(p->pagetable, buffer, (char*)src, length);
+  release(&shmlock);
+  return 0;
+}
+
+int shmwrite(int token, uint64 addr, uint64 buffer, int length) {
+  acquire(&shmlock);
+//  printf("test_shmwrite: say hi\n");
+  if( !shmcheck(token, SHM_WRITE) ) {
+    release(&shmlock);
+    return -1;
+  }
+  struct shm_result result;
+  shmfindinglobal(token, &result);
+  void* src = addr + shmlist[result.found].addr;
+  memmove((void*)src, (const void*)buffer, length);
+  release(&shmlock);
+  return 0;
 }
