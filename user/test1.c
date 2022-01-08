@@ -2,25 +2,41 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
+//这个测例模拟了四个并行运行CPU繁忙的进程
 int main(){
     int pid0 = fork();
     int pid1 = fork();
-    int pid2 = fork();
-    if(pid0 == 0){
-
+    if(pid0 != 0 && pid1 != 0){ //proc1
+      int j = 0;
+      for(int i=0; j< 10000000;i++){
+          if(i%5 == 0){
+              j++;
+          }
+      }
     }
-    else if(pid1 == 0){
-
+    else if(pid0 == 0 && pid1 != 0){ //proc2
+      int j = 0;
+      for(int i=0;j<100000000;i++){
+          if(i%15 == 0){
+              j++;
+          }
+      }
     }
-    else if (pid2 == 0){
-
+    else if(pid0 !=0 && pid1 == 0){ //proc3
+      int j = 0;
+      for(int i=0;j<100000000;i++){
+          if(i%5 == 0){
+              j++;
+          }
+      }
     }
-    else{
-        
+    else{  //proc4
+      int j =0;
+      for(int i=0;j<10000000;i++){
+          if(i%20 == 0){
+              j++;
+          }
+      }
     }
-    for(int i=0;;i++){
-
-    }
-
     exit(0);
 }

@@ -123,7 +123,6 @@ found:
   p->state = USED;
   p->readytime = 0;
   p->runtime = 0;
-  p->runtime_once = 0;
   p->sleeptime = 0;
   p->cretime = ticks;
   p->priority = 10;
@@ -170,6 +169,8 @@ freeproc(struct proc *p)
   p->trapframe = 0;
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
+  uint64 existtime = p->deadtime - p->cretime;
+  printf("pid: %d, CreateTime: %d, FinishTime: %d, RunTime: %d, ReadyTime: %d, SleepTime: %d, ExistTime: %d\n",p->pid, p->cretime, p->deadtime, p->runtime, p->readytime, p->sleeptime, existtime);
   p->pagetable = 0;
   p->sz = 0;
   p->pid = 0;
@@ -178,6 +179,10 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  p->priority=-1;
+  p->sleeptime = 0;
+  p->readytime = 0;
+  p->runtime = 0;
   p->cretime = 0;
   p->state = UNUSED;
 }
@@ -394,6 +399,7 @@ exit(int status)
 
   p->xstate = status;
   p->state = ZOMBIE;
+  p->deadtime = ticks;
   p->priority = 0;
 
   release(&wait_lock);
@@ -792,7 +798,6 @@ void UpdateProcInfo(){
     switch(p->state){
       case RUNNING:
         p->runtime++;
-        p->runtime_once++;
         break;
       case RUNNABLE:
         p->readytime++;

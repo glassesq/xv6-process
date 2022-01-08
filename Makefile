@@ -144,6 +144,7 @@ UPROGS=\
 	$U/_shmtest\
 	$U/_test1\
 	$U/_test2\
+	$U/_testio\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
