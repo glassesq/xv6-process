@@ -123,13 +123,18 @@ found:
   p->state = USED;
   p->readytime = 0;
   p->runtime = 0;
-  p->runtime_once = 0;
   p->sleeptime = 0;
   p->cretime = ticks;
   p->priority = 10;
   p->slot = SLOT;
   p->tickets = DEFAULT_TICKETS; // ???
+<<<<<<< HEAD
   // printf("pid allocated %d\n", p->pid); // debugging
+=======
+  int i = 0;
+  for(i = 0; i < NSHM_IN_PROC; i++) p->privateshmlist[i] = -1;
+  printf("pid allocated %d\n", p->pid);
+>>>>>>> a527a4806480bd5fde0b0745a125f137feb45bd6
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -160,11 +165,16 @@ found:
 static void
 freeproc(struct proc *p)
 {
+  shmdelall(p);
+  /* release all shared memory it preserved */
+
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
+  uint64 existtime = p->deadtime - p->cretime;
+  printf("pid: %d, CreateTime: %d, FinishTime: %d, RunTime: %d, ReadyTime: %d, SleepTime: %d, ExistTime: %d\n",p->pid, p->cretime, p->deadtime, p->runtime, p->readytime, p->sleeptime, existtime);
   p->pagetable = 0;
   p->sz = 0;
   p->pid = 0;
@@ -173,6 +183,10 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  p->priority=-1;
+  p->sleeptime = 0;
+  p->readytime = 0;
+  p->runtime = 0;
   p->cretime = 0;
   p->state = UNUSED;
 }
@@ -389,6 +403,7 @@ exit(int status)
 
   p->xstate = status;
   p->state = ZOMBIE;
+  p->deadtime = ticks;
   p->priority = 0;
 
   release(&wait_lock);
@@ -539,6 +554,7 @@ scheduler(void)
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
+        p->slot = SLOT;
         p->state = RUNNING;
         c->proc = p;
         swtch(&c->context, &p->context);
@@ -640,6 +656,9 @@ sleep(void *chan, struct spinlock *lk)
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
+  if(p->slot == 8){
+    p->slot--;
+  }
 
   sched();
 
@@ -787,7 +806,6 @@ void UpdateProcInfo(){
     switch(p->state){
       case RUNNING:
         p->runtime++;
-        p->runtime_once++;
         break;
       case RUNNABLE:
         p->readytime++;

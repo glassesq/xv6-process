@@ -152,3 +152,54 @@ sys_semsignal(void)
 
   return 0;
 }
+
+// get a new shared memory
+uint64
+sys_shmget(void) 
+{
+  int token;
+  if (argint(0, &token) < 0) 
+    return -1;
+  int ret = shmget(token);
+  return ret;
+}
+
+// delete an old shared memory
+uint64
+sys_shmdel(void) 
+{
+  int token;
+  if (argint(0, &token) < 0)
+    return -1;
+  int ret = shmdel(token);
+  return ret;
+}
+
+// read from shared memory
+uint64
+sys_shmread(void) 
+{
+  int token, length;
+  uint64 buffer, addr;
+  if (argint(0, &token) < 0 || argaddr(1, &addr) < 0 || argaddr(2, &buffer) < 0 || argint(3, &length) < 0)
+    return -1;
+  int ret = shmread(token, addr, buffer, length);
+//  printf("buffer:%p addr:%p\n", buffer, addr);
+  return ret;
+}
+
+// write from shared memory
+uint64
+sys_shmwrite(void) 
+{
+  int token, length;
+  uint64 pro_addr, addr;
+  if(argint(0, &token) < 0 || argaddr(1, &addr) < 0 ||  argaddr(2, &pro_addr) || argint(3, &length) < 0)
+    return -1;
+  void* kbuff = kalloc();
+  fetchstr(pro_addr, kbuff, length);
+//  printf("pro_addr:%p real_addr:%p addr:%p\n", pro_addr, kbuff, addr);
+  int ret = shmwrite(token, addr, (uint64)kbuff, length);
+  kfree(kbuff);
+  return ret;
+}

@@ -40,3 +40,7 @@ entry("semalloc");
 entry("semfree");
 entry("semwait");
 entry("semsignal");
+entry("shmget");
+entry("shmdel");
+entry("shmread");
+entry("shmwrite");

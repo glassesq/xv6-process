@@ -108,6 +108,10 @@ extern uint64 sys_semalloc(void);
 extern uint64 sys_semfree(void);
 extern uint64 sys_semwait(void);
 extern uint64 sys_semsignal(void);
+extern uint64 sys_shmget(void);
+extern uint64 sys_shmdel(void);
+extern uint64 sys_shmread(void);
+extern uint64 sys_shmwrite(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -135,6 +139,10 @@ static uint64 (*syscalls[])(void) = {
 [SYS_semfree] sys_semfree,
 [SYS_semwait] sys_semwait,
 [SYS_semsignal] sys_semsignal,
+[SYS_shmget] sys_shmget,
+[SYS_shmdel] sys_shmdel,
+[SYS_shmread] sys_shmread,
+[SYS_shmwrite] sys_shmwrite,
 };
 
 void

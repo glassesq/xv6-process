@@ -24,3 +24,7 @@
 #define SYS_semfree 23
 #define SYS_semwait 24
 #define SYS_semsignal 25
+#define SYS_shmget 26
+#define SYS_shmdel 27
+#define SYS_shmread 28
+#define SYS_shmwrite 29

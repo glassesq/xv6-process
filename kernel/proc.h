@@ -1,3 +1,4 @@
+#define NSHM_IN_PROC 8
 #define SLOT 8
 #define DEFAULT_TICKETS 1
 // Saved registers for kernel context switches.
@@ -112,12 +113,18 @@ struct proc {
   int sleeptime;               // Process SLEEPING time
   int readytime;               // Process RUNNABLE time
   int runtime;                 // Process RUNNING time
-  int runtime_once;            // Process RUNNING time in an interval
   int tickets;                 // Process tickets used in LOTTERY scheduling 
+<<<<<<< HEAD
   int cretime;                 // 进程被创建的时间
+=======
+  uint64 cretime;              // 进程被创建的时间
+  uint64 deadtime;             // 进程结束的时间
+>>>>>>> a527a4806480bd5fde0b0745a125f137feb45bd6
 
   int slot;                    // length of time slice(after number[slot] ticks, call yield())
+
+  int privateshmlist[NSHM_IN_PROC]; // Process shared memory
 };
 
-void UpdatePriority();           // for Priorty Scheduling
-void UpdateProcInfo();          // update sleepingtime, runningtime and readytime
+void UpdatePriority();         // for Priorty Scheduling
+void UpdateProcInfo();         // update sleepingtime, runningtime and readytime

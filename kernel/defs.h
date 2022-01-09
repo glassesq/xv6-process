@@ -112,6 +112,14 @@ int             rand(int max);
 // swtch.S
 void            swtch(struct context*, struct context*);
 
+// shm.c
+void            shminit(void); // shared memory initial
+int             shmget(int); // get shared memory
+int             shmdel(int); // release shared memory
+void            shmdelall(struct proc *); // release all shared memory
+int             shmread(int, uint64, uint64, int); // read from shared memory (to buffer) with addr
+int             shmwrite(int, uint64, uint64, int); // write to shared memory (from buffer) with addr
+
 // semaphore.c
 int             semalloc(int);
 void            semfree(int);
