@@ -128,13 +128,9 @@ found:
   p->priority = 10;
   p->slot = SLOT;
   p->tickets = DEFAULT_TICKETS; // ???
-<<<<<<< HEAD
-  // printf("pid allocated %d\n", p->pid); // debugging
-=======
   int i = 0;
   for(i = 0; i < NSHM_IN_PROC; i++) p->privateshmlist[i] = -1;
   printf("pid allocated %d\n", p->pid);
->>>>>>> a527a4806480bd5fde0b0745a125f137feb45bd6
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);

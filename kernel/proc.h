@@ -114,12 +114,8 @@ struct proc {
   int readytime;               // Process RUNNABLE time
   int runtime;                 // Process RUNNING time
   int tickets;                 // Process tickets used in LOTTERY scheduling 
-<<<<<<< HEAD
-  int cretime;                 // 进程被创建的时间
-=======
   uint64 cretime;              // 进程被创建的时间
   uint64 deadtime;             // 进程结束的时间
->>>>>>> a527a4806480bd5fde0b0745a125f137feb45bd6
 
   int slot;                    // length of time slice(after number[slot] ticks, call yield())
 
