@@ -114,7 +114,7 @@ struct proc {
   int runtime;                 // Process RUNNING time
   int runtime_once;            // Process RUNNING time in an interval
   int tickets;                 // Process tickets used in LOTTERY scheduling 
-  uint64 cretime;              // 进程被创建的时间
+  int cretime;                 // 进程被创建的时间
 
   int slot;                    // length of time slice(after number[slot] ticks, call yield())
 };

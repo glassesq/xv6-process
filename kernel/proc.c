@@ -129,7 +129,7 @@ found:
   p->priority = 10;
   p->slot = SLOT;
   p->tickets = DEFAULT_TICKETS; // ???
-  printf("pid allocated %d\n", p->pid);
+  // printf("pid allocated %d\n", p->pid); // debugging
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -768,7 +768,7 @@ procdump(void)
     else
       state = "???";
     
-    printf("%d %s %s", p->pid, state, p->name);
+    printf("%d %s %s %d", p->pid, state, p->name, p->cretime);
     #ifdef PRIORITY
     printf(" %d",p->priority);
     #endif
