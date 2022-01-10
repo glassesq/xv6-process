@@ -9,6 +9,9 @@
 #define SHM_READ 0
 #define SHM_WRITE 1
 
+#define SHM_PER_RO 0
+#define SHM_PER_WR 1
+
 struct sharedmemory shmlist[NSHM];
 struct spinlock shmlock;
 
@@ -96,7 +99,7 @@ void shminit(void) {
 }
 
 // 获取一个新的shared memory, 指定token
-int shmget(int token) {
+int shmget(int token, int method) {
 //  printf("test_shmget: say hi\n");
   acquire(&shmlock);  // 获取shmlock
   if (token < 0) {
@@ -113,11 +116,13 @@ int shmget(int token) {
     if( global_result.found >= 0 ) {
       struct proc *current = myproc();
       current->privateshmlist[result.extra] = token;
+      current->shmmethod[result.extra] = method;
       add_shm(global_result.found);
     }
     else if( global_result.found <= 0 ) {
       struct proc *current = myproc();
       current->privateshmlist[result.extra] = token;
+      current->shmmethod[result.extra] = method;
       create_shm(global_result.extra, token);
 //      printf("token: %d %d\n", current->privateshmlist[0], shmlist[0].token);
     }
@@ -141,6 +146,7 @@ int shmget(int token) {
   } 
 }
 
+// 释放对一个shared memory的控制
 int shmdel(int token) {
 //  printf("test_shmdel: say hi\n");
   acquire(&shmlock);
@@ -185,14 +191,22 @@ int shmcheck(int token, int type) {
   struct shm_result result;
   shmfindinproc(token, &result);
   if( result.found < 0 ) return 0;
-  // TODO: check read & write permission
+  struct proc* p = myproc();
+  if( type == SHM_WRITE && p->shmmethod[result.extra] == SHM_PER_RO ) return 0;
   return 1;
 }
 
+// read shared memory
 int shmread(int token, uint64 addr, uint64 buffer, int length) {
   acquire(&shmlock);
 //  printf("test_shmread: say hi\n");
   if( !shmcheck(token, SHM_READ) ) {
+    printf("wrong permission\n");
+    release(&shmlock);
+    return -1;
+  }
+  if( addr > PGSIZE ) {
+    printf("wrong addr\n");
     release(&shmlock);
     return -1;
   }
@@ -205,10 +219,17 @@ int shmread(int token, uint64 addr, uint64 buffer, int length) {
   return 0;
 }
 
+// write shared memory
 int shmwrite(int token, uint64 addr, uint64 buffer, int length) {
   acquire(&shmlock);
 //  printf("test_shmwrite: say hi\n");
   if( !shmcheck(token, SHM_WRITE) ) {
+    printf("wrong permission\n");
+    release(&shmlock);
+    return -1;
+  }
+  if( addr > PGSIZE ) {
+    printf("wrong addr\n");
     release(&shmlock);
     return -1;
   }

@@ -114,7 +114,7 @@ void            swtch(struct context*, struct context*);
 
 // shm.c
 void            shminit(void); // shared memory initial
-int             shmget(int); // get shared memory
+int             shmget(int, int); // get shared memory
 int             shmdel(int); // release shared memory
 void            shmdelall(struct proc *); // release all shared memory
 int             shmread(int, uint64, uint64, int); // read from shared memory (to buffer) with addr

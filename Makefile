@@ -142,12 +142,15 @@ UPROGS=\
 	$U/_sleep\
 	$U/_semtest\
 	$U/_shmtest\
+	$U/_pipetest\
 	$U/_test1\
 	$U/_test2\
 	$U/_testio\
 	$U/_test3\
 	$U/_fcfs_best\
 	$U/_fcfs_worst\
+	$U/_test4\
+	$U/_phil\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

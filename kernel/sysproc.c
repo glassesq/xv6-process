@@ -157,10 +157,10 @@ sys_semsignal(void)
 uint64
 sys_shmget(void) 
 {
-  int token;
-  if (argint(0, &token) < 0) 
+  int token, method;
+  if (argint(0, &token) < 0 || argint(1, &method)) 
     return -1;
-  int ret = shmget(token);
+  int ret = shmget(token, method);
   return ret;
 }
 

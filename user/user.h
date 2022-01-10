@@ -27,7 +27,7 @@ int semalloc(int);
 void semfree(int);
 void semwait(int, int);
 void semsignal(int, int);
-int shmget(int);
+int shmget(int, int);
 int shmdel(int);
 int shmread(int, int, char*, int);
 int shmwrite(int, int, char*, int);

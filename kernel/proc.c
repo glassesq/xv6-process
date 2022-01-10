@@ -125,7 +125,7 @@ found:
   p->runtime = 0;
   p->sleeptime = 0;
   p->cretime = ticks;
-  p->priority = 10;
+  p->priority = 15;
   p->slot = SLOT;
   p->tickets = DEFAULT_TICKETS; // ???
   int i = 0;
@@ -529,7 +529,7 @@ scheduler(void)
             }
           }
           p = priorProc;
-          //printf("\nprocess %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
+          //printf("process %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
         }
       #endif
       #ifdef LOTTERY
@@ -581,6 +581,8 @@ scheduler(void)
         p->slot = SLOT;
         p->state = RUNNING;
         c->proc = p;
+        //printf("process %d is to run\n",p->pid);
+        //printf("%d\n",p->pid); //for debug
         swtch(&c->context, &p->context);
 
         // Process is done running for now.
@@ -849,11 +851,13 @@ void UpdateProcInfo(){
 //when running this funtion, still get the lock of myproc()
 void UpdatePriority(){
   struct proc* p = myproc();
-  if(p->slot == 8){
-    p->priority = 1;
+  if(p->slot == 0){
+    if(p->priority>1){
+      p->priority = p->priority-1;
+    }
   }
   else{
-    p->priority = SLOT/(SLOT-p->slot);
+    p->priority = 15 + SLOT/(SLOT-p->slot);
   }
 }
 

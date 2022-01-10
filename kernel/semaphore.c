@@ -53,6 +53,6 @@ semsignal(int id, int nsem)
 {
   acquire(&sems[id].lock);
   sems[id].count += nsem;
-  wakeup1p(&sems[id]);
+  wakeup(&sems[id]);
   release(&sems[id].lock);
 }
