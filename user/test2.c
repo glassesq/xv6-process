@@ -2,8 +2,10 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
-//这个测例模拟了四个并行运行的进程
+//这个测例模拟了优先级调度中I/O繁忙进程优先的情况
+//同时生成四个并行运行的进程
 //其中proc1为IO繁忙的进程
+//可以观察到在优先级调度下I/O繁忙进程优先被处理
 int main(){
     int pid0 = fork();
     int pid1 = fork();
