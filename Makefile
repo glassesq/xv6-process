@@ -147,6 +147,7 @@ UPROGS=\
 	$U/_testio\
 	$U/_test3\
 	$U/_test4\
+	$U/_phil\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

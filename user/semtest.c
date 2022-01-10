@@ -65,7 +65,7 @@ void child(void)
 	int i;
 	int counter;
 
-	fprintf(1, "Process started...\n");
+	//fprintf(1, "Process started...\n");
 	sleep(10);
 
 	for (i=0; i<TARGET_COUNT; i++) {
