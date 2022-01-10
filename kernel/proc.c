@@ -171,6 +171,7 @@ freeproc(struct proc *p)
     proc_freepagetable(p->pagetable, p->sz);
   uint64 existtime = p->deadtime - p->cretime;
   printf("pid: %d, CreateTime: %d, FinishTime: %d, RunTime: %d, ReadyTime: %d, SleepTime: %d, ExistTime: %d\n",p->pid, p->cretime, p->deadtime, p->runtime, p->readytime, p->sleeptime, existtime);
+  p->tickets = 0;
   p->pagetable = 0;
   p->sz = 0;
   p->pid = 0;
@@ -542,8 +543,35 @@ scheduler(void)
           release(&p->lock);
           continue;
         }
-        printf("\nprocess %d is to run, the lottery is %d\n",p->pid,p->tickets);
-        p->tickets = 0; // ??? 一种变化的方式，选中的清零。清零之后本进程运行不了
+      }
+      #endif
+      #ifdef LOTTERY_PRI
+      if(p->pid > 2){
+        int rand_num = rand(total_tickets);
+        if(rand_num > p->tickets){ // did't happen
+          release(&p->lock);
+          continue;
+        }
+      }
+      #endif
+      #ifdef LOTTERY_FCFS
+      if(p->pid > 2){
+        int rand_num = rand(total_tickets);
+        if(rand_num > p->tickets){ // did't happen
+          release(&p->lock);
+          continue;
+        }
+        if(p->tickets < 100) p->tickets += 10;
+      }
+      #endif
+      #ifdef LOTTERY_QUEUE
+      if(p->pid > 2){
+        int rand_num = rand(total_tickets);
+        if(rand_num > p->tickets){ // did't happen
+          release(&p->lock);
+          continue;
+        }
+        p->tickets = 0;
       }
       #endif
       if(p != 0) {
@@ -837,10 +865,15 @@ int TotalTickets(){
   for(p = proc; p < &proc[NPROC]; p++){
     if(p != 0 && p->state == RUNNABLE){
       total += p->tickets;
+      #ifdef LOTTERY_QUEUE
       if(p->tickets < 100){
         p->tickets++; // 一种变化的方式，随时间增加
         // printf("after plus plus id = %d\n", p->pid);  // debugging
       }
+      #endif
+      #ifdef LOTTERY_PRI
+      p->tickets = p->priority;
+      #endif
     }
   }
   return total;
