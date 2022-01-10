@@ -7,10 +7,11 @@ int main(){
     int pid0 = fork();
     printf("0\n");
     int pid1 = fork();
+    int pid2 = -1;
     if(pid0 != 0 && pid1 != 0){ //proc1
       int j = 0;
-      for(int i=0; j< 10000000;i++){
-          if(i%5 == 0){
+      for(int i=0; j< 100000000;i++){
+          if(i%10 == 0){
               j++;
           }
       }
@@ -18,7 +19,7 @@ int main(){
     else if(pid0 == 0 && pid1 != 0){ //proc2
       int j = 0;
       for(int i=0;j<100000000;i++){
-          if(i%15 == 0){
+          if(i%10 == 0){
               j++;
           }
       }
@@ -26,15 +27,29 @@ int main(){
     else if(pid0 !=0 && pid1 == 0){ //proc3
       int j = 0;
       for(int i=0;j<100000000;i++){
-          if(i%5 == 0){
-              j++;
-          }
+        if(i%10 == 0){
+          j++;
+        }
+        if(j%10000000 == 0 && i%10==0){
+          pid2 = fork();
+        }
+        if(pid2 == 0){
+          break;
+        }
+      }
+      if(pid2 == 0){
+        int k=0;
+        for(int i=0;k<10000000;i++){
+            if(i%13 == 0){
+                k++;
+            }
+        }
       }
     }
     else{  //proc4
       int j =0;
-      for(int i=0;j<10000000;i++){
-          if(i%20 == 0){
+      for(int i=0;j<100000000;i++){
+          if(i%10 == 0){
               j++;
           }
       }

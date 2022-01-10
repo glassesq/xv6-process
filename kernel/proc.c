@@ -125,7 +125,7 @@ found:
   p->runtime = 0;
   p->sleeptime = 0;
   p->cretime = ticks;
-  p->priority = 10;
+  p->priority = 15;
   p->slot = SLOT;
   p->tickets = DEFAULT_TICKETS; // ???
   int i = 0;
@@ -470,15 +470,14 @@ scheduler(void)
 {
   struct proc *p;
   struct cpu *c = mycpu();
-  #ifdef FCFS
-  struct proc *nextproc = 0;
-  uint minPtime = (1ll << 32) - 1;
-  #endif
 
   c->proc = 0;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
+    for(int i = 0; i < NPROC; i++){
+      
+    }
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if(p->state != RUNNABLE){
@@ -491,25 +490,25 @@ scheduler(void)
       #endif
       #ifdef FCFS
       // 忽略init和shell进程
-      if(p->pid > 2){
+        struct proc* priorProc = 0;
+        struct proc* p1 = 0;
         if(p != 0){
-          if(p->cretime < minPtime){
-            minPtime = p->cretime;
-            nextproc = p;
-            // 若还没有遍历完一遍
-            // TODO:低效，可以维护一个新的队列
-            if(p != &proc[NPROC - 1]){
-              release(&p->lock);
-              continue;
-            }
-            else{
-              release(&p->lock);
-              p = nextproc;
-              acquire(&p->lock);
+          priorProc = p;
+          //search for the proc with maxPriority
+          for(p1 = proc; p1<&proc[NPROC];p1++){
+            if(p1!=p){
+              acquire(&p1->lock);
+              if((p1->state == RUNNABLE)&&(priorProc->pid>p1->pid)){
+                  release(&priorProc->lock);
+                  priorProc = p1;
+                  continue;
+              }
+              release(&p1->lock);
             }
           }
+          p = priorProc;
+          //printf("\nprocess %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
         }
-      }
       #endif
       #ifdef PRIORITY
         struct proc* priorProc = 0;
@@ -529,7 +528,7 @@ scheduler(void)
             }
           }
           p = priorProc;
-          //printf("\nprocess %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
+          //printf("process %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
         }
       #endif
       #ifdef LOTTERY
@@ -543,6 +542,7 @@ scheduler(void)
           release(&p->lock);
           continue;
         }
+        printf("\nprocess %d is to run, the lottery is %d\n",p->pid,p->tickets);
         p->tickets = 0; // ??? 一种变化的方式，选中的清零。清零之后本进程运行不了
       }
       #endif
@@ -550,8 +550,11 @@ scheduler(void)
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
+        p->slot = SLOT;
         p->state = RUNNING;
         c->proc = p;
+        //printf("process %d is to run\n",p->pid);
+        //printf("%d\n",p->pid); //for debug
         swtch(&c->context, &p->context);
 
         // Process is done running for now.
@@ -651,6 +654,9 @@ sleep(void *chan, struct spinlock *lk)
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
+  if(p->slot == 8){
+    p->slot--;
+  }
 
   sched();
 
@@ -779,7 +785,7 @@ procdump(void)
     else
       state = "???";
     
-    printf("%d %s %s", p->pid, state, p->name);
+    printf("%d %s %s %d", p->pid, state, p->name, p->cretime);
     #ifdef PRIORITY
     printf(" %d",p->priority);
     #endif
@@ -817,11 +823,13 @@ void UpdateProcInfo(){
 //when running this funtion, still get the lock of myproc()
 void UpdatePriority(){
   struct proc* p = myproc();
-  if(p->slot == 8){
-    p->priority = 1;
+  if(p->slot == 0){
+    if(p->priority>1){
+      p->priority = p->priority-1;
+    }
   }
   else{
-    p->priority = SLOT/(SLOT-p->slot);
+    p->priority = 15 + SLOT/(SLOT-p->slot);
   }
 }
 

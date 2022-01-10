@@ -80,7 +80,6 @@ usertrap(void)
   if(which_dev == 2){
     p->slot--;
     if(p->slot == 0){
-      p->slot = SLOT;
       yield();
     }
   }
@@ -158,7 +157,6 @@ kerneltrap()
     struct proc* p = myproc();
     p->slot--;
     if(p->slot == 0){
-      p->slot = SLOT;
       yield();
     }    
   }
