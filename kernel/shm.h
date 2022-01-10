@@ -6,5 +6,6 @@ struct sharedmemory
   void *addr;
   int token;
   int count;
-  // TODO: optional creator
+  int creator;
+  int last_modifier;
 };

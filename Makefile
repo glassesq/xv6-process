@@ -142,6 +142,7 @@ UPROGS=\
 	$U/_sleep\
 	$U/_semtest\
 	$U/_shmtest\
+	$U/_pipetest\
 	$U/_test1\
 	$U/_test2\
 	$U/_testio\
