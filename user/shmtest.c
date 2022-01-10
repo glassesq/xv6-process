@@ -10,7 +10,7 @@
 
 int main(int argc, char** argv) {
   printf("shmtest: say hi\n");
-  if(argc != 3) {
+  if (argc != 3) {
     printf("wrong arguments\n");
     exit(0);
   }
@@ -21,36 +21,31 @@ int main(int argc, char** argv) {
   int count = COUNT;
 
   if (fork() == 0) {
-    shmget(1, 0);
+    shmget(1, 1);
 
     void* buff = malloc(SIZE);
     memset(buff, 'a', SIZE);
 
-//    write(1, "write to shared memory:", 23);
-//    write(1, buff, 5);
-    while(count--) {
+    while (count--) {
       shmwrite(1, 0, buff, SIZE);
       semsignal(sem, 1);
     }
-//		write(1, "\n------END CHILD-------\n", 24);
-		semsignal(sem, 1);
+    semsignal(sem, 1);
     shmdel(1);
   } else {
-		shmget(1, 1);
+    shmget(1, 1);
     void* buff2 = malloc(SIZE);
     int st, ed;
     st = uptime();
-    while(count--) {
-		  semwait(sem, 1);
+    while (count--) {
+      semwait(sem, 1);
       shmread(1, 0, buff2, SIZE);
     }
     ed = uptime();
-    printf("[shared memory] %d times in pipes with %d time slides\n", COUNT, ed - st);
-//		write(1, "read from shared memory:", 24);
-//    write(1, buff2, 5);
-//		write(1, "\n------END PARENT-------\n", 24);
+    printf("[shared memory] %d times in pipes with %d time slides\n", COUNT,
+           ed - st);
     shmdel(1);
- }
+  }
   semfree(sem);
   // Exit
   exit(0);

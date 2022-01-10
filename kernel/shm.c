@@ -72,7 +72,7 @@ void create_shm(int id, int token) {
 // 插入一个shared memory
 void add_shm(int id) {
   shmlist[id].count ++;
-  printf("shared memory %d: add one. now have %d\n", id, shmlist[id].count);
+//  printf("shared memory %d: add one. now have %d\n", id, shmlist[id].count);
 }
 
 // 在全局删除一个名为token的shm
@@ -124,7 +124,8 @@ int shmget(int token, int method) {
       current->privateshmlist[result.extra] = token;
       current->shmmethod[result.extra] = method;
       create_shm(global_result.extra, token);
-//      printf("token: %d %d\n", current->privateshmlist[0], shmlist[0].token);
+      shmlist[global_result.extra].creator = current->pid;
+      shmlist[global_result.extra].last_modifier = current->pid;
     }
     else {
       printf("no more space for shm in global");
@@ -192,14 +193,13 @@ int shmcheck(int token, int type) {
   shmfindinproc(token, &result);
   if( result.found < 0 ) return 0;
   struct proc* p = myproc();
-  if( type == SHM_WRITE && p->shmmethod[result.extra] == SHM_PER_RO ) return 0;
+  if( type == SHM_WRITE && p->shmmethod[result.found] == SHM_PER_RO ) return 0;
   return 1;
 }
 
 // read shared memory
 int shmread(int token, uint64 addr, uint64 buffer, int length) {
   acquire(&shmlock);
-//  printf("test_shmread: say hi\n");
   if( !shmcheck(token, SHM_READ) ) {
     printf("wrong permission\n");
     release(&shmlock);
@@ -214,6 +214,7 @@ int shmread(int token, uint64 addr, uint64 buffer, int length) {
   shmfindinglobal(token, &result);
   void* src = addr + shmlist[result.found].addr;
   struct proc* p = myproc();
+  shmlist[result.found].last_modifier = p->pid;
   copyout(p->pagetable, buffer, (char*)src, length);
   release(&shmlock);
   return 0;
