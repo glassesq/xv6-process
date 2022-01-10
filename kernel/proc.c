@@ -528,7 +528,7 @@ scheduler(void)
             }
           }
           p = priorProc;
-          //printf("\nprocess %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
+          //printf("process %d is to run, the priority is %d\n",p->pid,p->priority); //for debug
         }
       #endif
       #ifdef LOTTERY
@@ -554,6 +554,7 @@ scheduler(void)
         p->state = RUNNING;
         c->proc = p;
         //printf("process %d is to run\n",p->pid);
+        //printf("%d\n",p->pid); //for debug
         swtch(&c->context, &p->context);
 
         // Process is done running for now.
