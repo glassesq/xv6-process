@@ -120,6 +120,7 @@ struct proc {
   int slot;                    // length of time slice(after number[slot] ticks, call yield())
 
   int privateshmlist[NSHM_IN_PROC]; // Process shared memory
+  int shmmethod[NSHM_IN_PROC]; // Process shared memory
 };
 
 void UpdatePriority();         // for Priorty Scheduling

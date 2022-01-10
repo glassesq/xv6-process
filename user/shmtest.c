@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   int count = COUNT;
 
   if (fork() == 0) {
-    shmget(1);
+    shmget(1, 0);
 
     void* buff = malloc(SIZE);
     memset(buff, 'a', SIZE);
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 		semsignal(sem, 1);
     shmdel(1);
   } else {
-		shmget(1);
+		shmget(1, 1);
     void* buff2 = malloc(SIZE);
     int st, ed;
     st = uptime();

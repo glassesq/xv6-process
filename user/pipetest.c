@@ -17,8 +17,6 @@ int main(int argc, char** argv) {
   int COUNT = atoi(argv[1]);
   int SIZE = atoi(argv[2]);
 
-
-
   int p[2];
   pipe(p);
   int READ = 0, WRITE = 1;
